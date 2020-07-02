@@ -31,28 +31,41 @@ class Calcular_puntaje
   def initialize
   end
 
-  def puntaje_total
-    puts "entro2"
+  def puntaje_total(cuadro)
+    puntaje_total = 0
+    for indice_cuadro in 1..10
+      puntaje_total = puntaje_total + cuadro[indice_cuadro]
+      print cuadro[indice_cuadro]
+    end
+    print "Puntaje total: ", puntaje_total
   end
 
-  def ganador
+  def puntaje_cuadro(intento, indice_intento)
+    puntaje_cuadro = 0
+    puntaje_cuadro = intento[indice_intento].to_i + intento[indice_intento - 1].to_i
+    print "Puntaje del cuadro", puntaje_cuadro
+    return puntaje_cuadro
   end
+
 end
 
 #pide los tiros para ese cuadro y arroja ganador del cuadro
 class Cuadro
   attr_reader :indice_intento
-  attr_reader :num_oportunidad
   attr_writer :indice_intento
+  attr_reader :indice_cuadro
+  attr_writer :indice_cuadro
+  attr_reader :num_oportunidad
   attr_reader :cuadro
   attr_reader :intento
   attr_reader :calcular
 
   def initialize
-    @cuadro = Array.new(10, 0)
+    @cuadro = Array.new(11, 0)
     @intento = Array.new(22, 0)
     @calcular = Calcular_puntaje.new
     @indice_intento = 0
+    @indice_cuadro = 0
   end
 
   def partida_cuadro(pedir)
@@ -65,9 +78,15 @@ class Cuadro
     @indice_intento = @indice_intento + 1
     intento[indice_intento] = pinos
     print "guarda indice", indice_intento, "valor", intento[indice_intento]
+    guardar_cuadro
+  end
+
+  def guardar_cuadro
     if indice_intento == 2
       puts "if si "
-      calcular.puntaje_total()
+      @indice_cuadro = @indice_cuadro + 1
+      cuadro[indice_cuadro] = calcular.puntaje_cuadro(intento, indice_intento)
+      print "ret", cuadro[indice_cuadro]
     end
   end
 

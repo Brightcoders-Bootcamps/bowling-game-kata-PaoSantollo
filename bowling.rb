@@ -35,35 +35,22 @@ class Calcular_puntaje
     puntaje_total = 0
     for indice_cuadro in 1..10
       puntaje_total = puntaje_total + cuadro[indice_cuadro]
-      print cuadro[indice_cuadro]
     end
     print "Puntaje total: ", puntaje_total
   end
-
-  def puntaje_cuadro(intento, indice_intento)
-    puntaje_cuadro = 0
-    puntaje_cuadro = intento[indice_intento].to_i + intento[indice_intento - 1].to_i
-    print "Puntaje del cuadro", puntaje_cuadro
-    return puntaje_cuadro
-  end
-
 end
 
 #pide los tiros para ese cuadro y arroja ganador del cuadro
 class Cuadro
-  attr_reader :indice_intento
-  attr_writer :indice_intento
-  attr_reader :indice_cuadro
-  attr_writer :indice_cuadro
+  #attr_reader :indice_intento, :indice_cuadro
+  attr_reader :indice_intento, :indice_cuadro
   attr_reader :num_oportunidad
   attr_reader :cuadro
   attr_reader :intento
-  attr_reader :calcular
 
   def initialize
     @cuadro = Array.new(11, 0)
     @intento = Array.new(22, 0)
-    @calcular = Calcular_puntaje.new
     @indice_intento = 0
     @indice_cuadro = 0
   end
@@ -83,10 +70,10 @@ class Cuadro
 
   def guardar_cuadro
     if indice_intento == 2
-      puts "if si "
       @indice_cuadro = @indice_cuadro + 1
-      cuadro[indice_cuadro] = calcular.puntaje_cuadro(intento, indice_intento)
-      print "ret", cuadro[indice_cuadro]
+      primer_intento = intento[indice_intento].to_i
+      segundo_intento = intento[indice_intento - 1].to_i
+      cuadro[indice_cuadro] = primer_intento + segundo_intento
     end
   end
 

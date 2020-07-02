@@ -62,21 +62,21 @@
       <div class="col-md-8">
         <div class="row">
           <div class="col-md-1">
-            <div class="rating a big">
-              A
+            <div class="rating b big">
+              B
             </div>
           </div>
           <div class="code-statistics col-md-11">
             <div class="col-md-3">
-              <div><span class="metric">109</span><small> lines of codes</small></div>
+              <div><span class="metric">122</span><small> lines of codes</small></div>
               <div><span class="metric">13</span><small> methods</small></div>
             </div>
             <div class="col-md-3">
-              <div><span class="metric">2.8</span><small> complexity/method</small></div>
-              <div><span class="metric">1</span><small> churn</small></div>
+              <div><span class="metric">6.0</span><small> complexity/method</small></div>
+              <div><span class="metric">3</span><small> churn</small></div>
             </div>
             <div class="col-md-3">
-              <div><span class="metric">36.46</span><small> complexity</small></div>
+              <div><span class="metric">77.55</span><small> complexity</small></div>
               <div><span class="metric">0</span><small> duplications</small></div>
             </div>
           </div>
@@ -88,7 +88,7 @@
             <li><a href="#" id="toggle-code" class="toggle-button button">code</a></li>
             <li class="active">
               <a href="#" id="toggle-smells" class="toggle-button button">
-                1
+                0
                 smell
               </a>
             </li>
@@ -103,7 +103,6 @@ class Pinos_Validar
 
   def initialize(pinos)
     @pinos = pinos.to_i
-    print &quot;pinos&quot;, pinos
   end
 
   def valid?
@@ -131,22 +130,28 @@ class Calcular_puntaje
   def initialize
   end
 
-  def puntaje_total
-  end
-
-  def ganador
+  def puntaje_total(cuadro)
+    puntaje_total = 0
+    for indice_cuadro in 1..10
+      puntaje_total = puntaje_total + cuadro[indice_cuadro]
+    end
+    print &quot;Puntaje total: &quot;, puntaje_total
   end
 end
 
 #pide los tiros para ese cuadro y arroja ganador del cuadro
 class Cuadro
+  #attr_reader :indice_intento, :indice_cuadro
+  attr_reader :indice_intento, :indice_cuadro
   attr_reader :num_oportunidad
   attr_reader :cuadro
   attr_reader :intento
 
   def initialize
-    @cuadro = Array.new(10, 0)
-    @intento = Array.new(21, 0)
+    @cuadro = Array.new(11, 0)
+    @intento = Array.new(22, 0)
+    @indice_intento = 0
+    @indice_cuadro = 0
   end
 
   def partida_cuadro(pedir)
@@ -155,14 +160,25 @@ class Cuadro
     end
   end
 
-  def guardar_oportunidad(pinos)<ol class="nocode errors smells">  <li>    <div class="description">      <div class="heading">        <span>          <i class="fa fa-warning" aria-hidden="true"></i>          <a href="https://github.com/troessner/reek/blob/master/docs/Unused-Parameters.md" target="_blank"><b>UnusedParameters</b></a>        </span>      </div>      <span>Cuadro#guardar_oportunidad has unused parameter 'pinos'</span>          </div>  </li></ol>
-    puts &quot;entros&quot;
-    #intento[num_oportunidad] = pinos
+  def guardar_oportunidad(pinos)
+    @indice_intento = @indice_intento + 1
+    intento[indice_intento] = pinos
+    print &quot;guarda indice&quot;, indice_intento, &quot;valor&quot;, intento[indice_intento]
+    guardar_cuadro
+  end
+
+  def guardar_cuadro
+    if indice_intento == 2
+      @indice_cuadro = @indice_cuadro + 1
+      primer_intento = intento[indice_intento].to_i
+      segundo_intento = intento[indice_intento - 1].to_i
+      cuadro[indice_cuadro] = primer_intento + segundo_intento
+    end
   end
 
   def oportunidad(pedir)
-    for @num_oportunidad in 1..2
-      puts &quot;intento&quot;
+    for num_oportunidad in 1..2
+      puts &quot;num op es &quot;, num_oportunidad, &quot;indice&quot;, indice_intento
       pedir.preguntar_tiro
       pedir.validar_tiro
     end
@@ -177,18 +193,17 @@ end
 class Tiro
   attr_reader :tiro
   attr_reader :pinos
-
   attr_reader :cuadro
 
   def initialize
     @cuadro = Cuadro.new
+    @tiro = Pinos_Validar.new(pinos)
   end
 
   def preguntar_tiro
-    puts &quot;Tiro&quot;
+    puts &quot;\n Tiro&quot;
     STDOUT.flush
     @pinos = gets.chomp
-    @tiro = Pinos_Validar.new(pinos)
   end
 
   def validar_tiro
@@ -201,8 +216,6 @@ class Tiro
   end
 end
 
-#juego = Pedir_tiro.new
-#juego.intento_tiro
 pedir = Tiro.new
 cuadro = Cuadro.new
 cuadro.partida_cuadro(pedir)

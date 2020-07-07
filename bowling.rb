@@ -1,122 +1,156 @@
 #valida que se ecuentre en el rango deseado y que sea entero
-class Pinos_Validar
+class PinosValidar
   attr_reader :pinos
 
   def initialize(pinos)
     @pinos = pinos.to_i
   end
 
-  def valid?
-    rango = 0...10
+  def valid?(limite_rango)
+    rango = 0...limite_rango
     rango.include?(pinos)
   end
 end
 
-#Tipo de tiro spare
-class Spare
-  def tiro_spare
-  end
-end
-
-#tipo de tiro Strike
-class Strike
-end
-
-#tipo de tiro Miss
-class Miss
-end
-
 #La clase puntaje realiza la sumatoria de los pinos y ganador del juego
-class Calcular_puntaje
+class CalcularPuntaje
+  attr_reader :impresion
+
   def initialize
+    @impresion = Impresiones.new
   end
 
-  def puntaje_total(cuadro)
-    puntaje_total = 0
-    for indice_cuadro in 1..10
-      puntaje_total = puntaje_total + cuadro[indice_cuadro]
+  def puntaje_total(intento)
+    puntaje = 0
+    for indice_intento in 1..22
+      puntaje = puntaje + intento[indice_intento].to_i
     end
-    print "Puntaje total: ", puntaje_total
+    impresion.imprimir_resultado(puntaje)
   end
 end
 
 #pide los tiros para ese cuadro y arroja ganador del cuadro
 class Cuadro
-  #attr_reader :indice_intento, :indice_cuadro
-  attr_reader :indice_intento, :indice_cuadro
-  attr_reader :num_oportunidad
-  attr_reader :cuadro
-  attr_reader :intento
+  attr_reader :indice_intento, :intento, :limite
 
   def initialize
-    @cuadro = Array.new(11, 0)
     @intento = Array.new(22, 0)
     @indice_intento = 0
-    @indice_cuadro = 0
-  end
-
-  def partida_cuadro(pedir)
-    for numcuadro in 1..1
-      oportunidad(pedir)
-    end
   end
 
   def guardar_oportunidad(pinos)
     @indice_intento = @indice_intento + 1
-    intento[indice_intento] = pinos
-    print "guarda indice", indice_intento, "valor", intento[indice_intento]
-    guardar_cuadro
+    intento[indice_intento + 1] = pinos
+    ultimo_intento
   end
 
-  def guardar_cuadro
-    if indice_intento == 2
-      @indice_cuadro = @indice_cuadro + 1
-      primer_intento = intento[indice_intento].to_i
-      segundo_intento = intento[indice_intento - 1].to_i
-      cuadro[indice_cuadro] = primer_intento + segundo_intento
+  def ultimo_intento
+    if indice_intento == 20
+      impresion = Impresiones.new
+      impresion.imprimir_tablero(intento)
+      calculo = CalcularPuntaje.new
+      calculo.puntaje_total(intento)
     end
   end
-
-  def oportunidad(pedir)
-    for num_oportunidad in 1..2
-      puts "num op es ", num_oportunidad, "indice", indice_intento
-      pedir.preguntar_tiro
-      pedir.validar_tiro
-    end
-  end
-end
-
-#logica del juego
-class Juego
 end
 
 #Pide al usuario ingresar los tiros y los valida
 class Tiro
-  attr_reader :tiro
-  attr_reader :pinos
-  attr_reader :cuadro
+  attr_reader :tiro, :pinos, :limite, :impresion
 
   def initialize
-    @cuadro = Cuadro.new
-    @tiro = Pinos_Validar.new(pinos)
+    @impresion = Impresiones.new
   end
 
   def preguntar_tiro
-    puts "\n Tiro"
-    STDOUT.flush
+    impresion.impresion_pedir_tiro
     @pinos = gets.chomp
+    @tiro = PinosValidar.new(pinos)
   end
 
-  def validar_tiro
-    if tiro.valid?
-      puts "valido " + pinos
+  def partida_cuadro
+    for numcuadro in 1..10
+      impresion = Impresiones.new
+      impresion.impresion_cuadro(numcuadro)
+      oportunidad
+    end
+  end
+
+  def oportunidad
+    for num_oportunidad in 1..2
+      if num_oportunidad == 1 && pinos == 10
+        num_oportunidad = 2
+      end
+      preguntar_tiro
+      validar_tiro(num_oportunidad)
+    end
+  end
+
+  def validar_tiro(num_oportunidad)
+    cuadro = Cuadro.new
+    limite = limite_tiros(num_oportunidad)
+    if tiro.valid?(limite)
       cuadro.guardar_oportunidad(pinos)
     else
-      puts "Tiro invalido"
+      impresion.impresion_error
+      preguntar_tiro
+    end
+  end
+
+  def limite_tiros(num_oportunidad)
+    pinos_anterior = pinos
+    @limite = 11
+    if num_oportunidad == 2
+      @limite = 10 - pinos_anterior.to_i
+    end
+    return limite
+  end
+end
+
+#impresiones del juego
+class Impresiones
+  def impresion_pedir_tiro
+    puts "\n Ingresa tu tiro: "
+    STDOUT.flush
+  end
+
+  def impresion_cuadro(numcuadro)
+    print "Cuadro ", numcuadro
+  end
+
+  def impresion_error
+    print "Tiro invalido, favor de ingresar otro tiro"
+  end
+
+  def imprimir_resultado(puntaje)
+    print "\n Puntaje total: ", puntaje
+  end
+
+  def imprimir_tablero(intento)
+    for indice in 1..22
+      imprimir_spare
+      imprimir_miss
+      print " ", intento[indice]
+    end
+  end
+
+  def imprimir_strike
+    if intento[indice].to_i == 10
+      print "X"
+    end
+  end
+
+  def imprimir_spare
+    print "/"
+  end
+
+  def imprimir_miss
+    if intento[indice].to_i == 0
+      print "- "
     end
   end
 end
 
 pedir = Tiro.new
 cuadro = Cuadro.new
-cuadro.partida_cuadro(pedir)
+pedir.partida_cuadro

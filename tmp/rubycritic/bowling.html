@@ -62,21 +62,21 @@
       <div class="col-md-8">
         <div class="row">
           <div class="col-md-1">
-            <div class="rating b big">
-              B
+            <div class="rating c big">
+              C
             </div>
           </div>
           <div class="code-statistics col-md-11">
             <div class="col-md-3">
-              <div><span class="metric">122</span><small> lines of codes</small></div>
-              <div><span class="metric">13</span><small> methods</small></div>
+              <div><span class="metric">160</span><small> lines of codes</small></div>
+              <div><span class="metric">21</span><small> methods</small></div>
             </div>
             <div class="col-md-3">
-              <div><span class="metric">6.0</span><small> complexity/method</small></div>
-              <div><span class="metric">3</span><small> churn</small></div>
+              <div><span class="metric">4.9</span><small> complexity/method</small></div>
+              <div><span class="metric">5</span><small> churn</small></div>
             </div>
             <div class="col-md-3">
-              <div><span class="metric">77.55</span><small> complexity</small></div>
+              <div><span class="metric">102.6</span><small> complexity</small></div>
               <div><span class="metric">0</span><small> duplications</small></div>
             </div>
           </div>
@@ -88,8 +88,8 @@
             <li><a href="#" id="toggle-code" class="toggle-button button">code</a></li>
             <li class="active">
               <a href="#" id="toggle-smells" class="toggle-button button">
-                0
-                smell
+                3
+                smells
               </a>
             </li>
           </ul>
@@ -98,127 +98,165 @@
     </div>
 
     <code class="prettyprint linenums lang-ruby file-code js-file-code">#valida que se ecuentre en el rango deseado y que sea entero
-class Pinos_Validar
+class PinosValidar
   attr_reader :pinos
 
   def initialize(pinos)
     @pinos = pinos.to_i
   end
 
-  def valid?
-    rango = 0...10
+  def valid?(limite_rango)
+    rango = 0...limite_rango
     rango.include?(pinos)
   end
 end
 
-#Tipo de tiro spare
-class Spare
-  def tiro_spare
-  end
-end
-
-#tipo de tiro Strike
-class Strike
-end
-
-#tipo de tiro Miss
-class Miss
-end
-
 #La clase puntaje realiza la sumatoria de los pinos y ganador del juego
-class Calcular_puntaje
+class CalcularPuntaje
+  attr_reader :impresion
+
   def initialize
+    @impresion = Impresiones.new
   end
 
-  def puntaje_total(cuadro)
-    puntaje_total = 0
-    for indice_cuadro in 1..10
-      puntaje_total = puntaje_total + cuadro[indice_cuadro]
+  def puntaje_total(intento)
+    puntaje = 0
+    for indice_intento in 1..22
+      puntaje = puntaje + intento[indice_intento].to_i
     end
-    print &quot;Puntaje total: &quot;, puntaje_total
+    impresion.imprimir_resultado(puntaje)
   end
 end
 
 #pide los tiros para ese cuadro y arroja ganador del cuadro
 class Cuadro
-  #attr_reader :indice_intento, :indice_cuadro
-  attr_reader :indice_intento, :indice_cuadro
-  attr_reader :num_oportunidad
-  attr_reader :cuadro
-  attr_reader :intento
+  attr_reader :indice_intento, :intento, :limite
+  attr_writer :indice_intento<ol class="nocode errors smells">  <li>    <div class="description">      <div class="heading">        <span>          <i class="fa fa-warning" aria-hidden="true"></i>          <a href="https://github.com/troessner/reek/blob/master/docs/Attribute.md" target="_blank"><b>Attribute</b></a>        </span>      </div>      <span>Cuadro#indice_intento is a writable attribute</span>          </div>  </li></ol>
 
   def initialize
-    @cuadro = Array.new(11, 0)
     @intento = Array.new(22, 0)
-    @indice_intento = 0
-    @indice_cuadro = 0
-  end
-
-  def partida_cuadro(pedir)
-    for numcuadro in 1..1
-      oportunidad(pedir)
-    end
+    @indice_intento = 1
   end
 
   def guardar_oportunidad(pinos)
-    @indice_intento = @indice_intento + 1
+    print &quot;in an&quot;, @indice_intento
+    @indice_intento = @indice_intento.to_i + 1
     intento[indice_intento] = pinos
-    print &quot;guarda indice&quot;, indice_intento, &quot;valor&quot;, intento[indice_intento]
-    guardar_cuadro
+    print &quot;indice&quot;, @indice_intento
+    ultimo_intento
   end
 
-  def guardar_cuadro
+  def ultimo_intento
     if indice_intento == 2
-      @indice_cuadro = @indice_cuadro + 1
-      primer_intento = intento[indice_intento].to_i
-      segundo_intento = intento[indice_intento - 1].to_i
-      cuadro[indice_cuadro] = primer_intento + segundo_intento
+      impresion = Impresiones.new
+      impresion.imprimir_tablero(intento)
+      calculo = CalcularPuntaje.new
+      calculo.puntaje_total(intento)
     end
   end
-
-  def oportunidad(pedir)
-    for num_oportunidad in 1..2
-      puts &quot;num op es &quot;, num_oportunidad, &quot;indice&quot;, indice_intento
-      pedir.preguntar_tiro
-      pedir.validar_tiro
-    end
-  end
-end
-
-#logica del juego
-class Juego
 end
 
 #Pide al usuario ingresar los tiros y los valida
 class Tiro
-  attr_reader :tiro
-  attr_reader :pinos
-  attr_reader :cuadro
+  attr_reader :tiro, :pinos, :limite, :impresion
 
   def initialize
-    @cuadro = Cuadro.new
-    @tiro = Pinos_Validar.new(pinos)
+    @impresion = Impresiones.new
   end
 
   def preguntar_tiro
-    puts &quot;\n Tiro&quot;
-    STDOUT.flush
+    impresion.impresion_pedir_tiro
     @pinos = gets.chomp
+    @tiro = PinosValidar.new(pinos)
   end
 
-  def validar_tiro
-    if tiro.valid?
-      puts &quot;valido &quot; + pinos
+  def partida_cuadro
+    for numcuadro in 1..10
+      impresion = Impresiones.new
+      impresion.impresion_cuadro(numcuadro)
+      oportunidad
+    end
+  end
+
+  def oportunidad
+    for num_oportunidad in 1..2
+      preguntar_tiro
+      if num_oportunidad == 1 and pinos == &quot;10&quot;
+        validar_tiro(num_oportunidad)<ol class="nocode errors smells">  <li>    <div class="description">      <div class="heading">        <span>          <i class="fa fa-warning" aria-hidden="true"></i>          <a href="https://github.com/troessner/reek/blob/master/docs/Duplicate-Method-Call.md" target="_blank"><b>DuplicateMethodCall</b></a>        </span>      </div>      <span>Tiro#oportunidad calls 'validar_tiro(num_oportunidad)' 2 times</span>              <span>Locations:</span>                  <a href="bowling.html#L86" class="js-smell-location">0</a>                  <a href="bowling.html#L89" class="js-smell-location">1</a>                  </div>  </li></ol>
+        break
+      end
+      validar_tiro(num_oportunidad)<ol class="nocode errors smells">  <li>    <div class="description">      <div class="heading">        <span>          <i class="fa fa-warning" aria-hidden="true"></i>          <a href="https://github.com/troessner/reek/blob/master/docs/Duplicate-Method-Call.md" target="_blank"><b>DuplicateMethodCall</b></a>        </span>      </div>      <span>Tiro#oportunidad calls 'validar_tiro(num_oportunidad)' 2 times</span>              <span>Locations:</span>                  <a href="bowling.html#L86" class="js-smell-location">0</a>                  <a href="bowling.html#L89" class="js-smell-location">1</a>                  </div>  </li></ol>
+    end
+  end
+
+  def validar_tiro(num_oportunidad)
+    cuadro = Cuadro.new
+    limite = limite_tiros(num_oportunidad)
+    if tiro.valid?(limite)
       cuadro.guardar_oportunidad(pinos)
     else
-      puts &quot;Tiro invalido&quot;
+      impresion.impresion_error
+      preguntar_tiro
+    end
+  end
+
+  def limite_tiros(num_oportunidad)
+    pinos_anterior = pinos
+    @limite = 11
+    if num_oportunidad == 2<ol class="nocode errors smells">  <li>    <div class="description">      <div class="heading">        <span>          <i class="fa fa-warning" aria-hidden="true"></i>          <a href="https://github.com/troessner/reek/blob/master/docs/Control-Parameter.md" target="_blank"><b>ControlParameter</b></a>        </span>      </div>      <span>Tiro#limite_tiros is controlled by argument 'num_oportunidad'</span>          </div>  </li></ol>
+      @limite = 10 - pinos_anterior.to_i
+    end
+    return limite
+  end
+end
+
+#impresiones del juego
+class Impresiones
+  def impresion_pedir_tiro
+    puts &quot;\n Ingresa tu tiro: &quot;
+    STDOUT.flush
+  end
+
+  def impresion_cuadro(numcuadro)
+    print &quot;Cuadro &quot;, numcuadro
+  end
+
+  def impresion_error
+    print &quot;Tiro invalido, favor de ingresar otro tiro&quot;
+  end
+
+  def imprimir_resultado(puntaje)
+    print &quot;\n Puntaje total: &quot;, puntaje
+  end
+
+  def imprimir_tablero(intento)
+    for indice in 2..22
+      imprimir_spare
+      imprimir_miss(intento, indice)
+      print &quot; &quot;, intento[indice]
+    end
+  end
+
+  def imprimir_strike
+    if intento[indice].to_i == 10
+      print &quot;X&quot;
+    end
+  end
+
+  def imprimir_spare
+    print &quot;/&quot;
+  end
+
+  def imprimir_miss(intento, indice)
+    if intento[indice].to_i == 0
+      print &quot;- &quot;
     end
   end
 end
 
 pedir = Tiro.new
 cuadro = Cuadro.new
-cuadro.partida_cuadro(pedir)
+pedir.partida_cuadro
 </code>
   </div>
 </div>

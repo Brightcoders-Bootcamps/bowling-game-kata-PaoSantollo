@@ -12,7 +12,7 @@ class PinosValidar
   end
 end
 
-#La clase puntaje realiza la sumatoria de los pinos y ganador del juego
+#La clase puntaje realiza la sumatoria de los pinos
 class CalcularPuntaje
   attr_reader :impresion
 
@@ -29,7 +29,7 @@ class CalcularPuntaje
   end
 end
 
-#pide los tiros para ese cuadro y arroja ganador del cuadro
+#pide los tiros para ese cuadro
 class Cuadro
   attr_reader :indice_intento, :intento, :limite
 
@@ -39,13 +39,15 @@ class Cuadro
   end
 
   def guardar_oportunidad(pinos)
-    @indice_intento = @indice_intento + 1
-    intento[indice_intento + 1] = pinos
+    # puts "indice antes: #{@indice_intento}"
+    @indice_intento += 1
+    @intento[@indice_intento] = pinos
+    #puts "indice despues: #{@indice_intento}"
     ultimo_intento
   end
 
   def ultimo_intento
-    if indice_intento == 20
+    if indice_intento == 2
       impresion = Impresiones.new
       impresion.imprimir_tablero(intento)
       calculo = CalcularPuntaje.new
@@ -56,10 +58,11 @@ end
 
 #Pide al usuario ingresar los tiros y los valida
 class Tiro
-  attr_reader :tiro, :pinos, :limite, :impresion
+  attr_reader :tiro, :pinos, :limite, :impresion, :cuadro
 
   def initialize
     @impresion = Impresiones.new
+    @cuadro = Cuadro.new
   end
 
   def preguntar_tiro
@@ -78,16 +81,16 @@ class Tiro
 
   def oportunidad
     for num_oportunidad in 1..2
-      if num_oportunidad == 1 && pinos == 10
-        num_oportunidad = 2
-      end
       preguntar_tiro
+      if num_oportunidad == 1 and pinos == "10"
+        validar_tiro(num_oportunidad)
+        break
+      end
       validar_tiro(num_oportunidad)
     end
   end
 
   def validar_tiro(num_oportunidad)
-    cuadro = Cuadro.new
     limite = limite_tiros(num_oportunidad)
     if tiro.valid?(limite)
       cuadro.guardar_oportunidad(pinos)
@@ -127,9 +130,9 @@ class Impresiones
   end
 
   def imprimir_tablero(intento)
-    for indice in 1..22
+    for indice in 2..22
       imprimir_spare
-      imprimir_miss
+      imprimir_miss(intento, indice)
       print " ", intento[indice]
     end
   end
@@ -144,7 +147,7 @@ class Impresiones
     print "/"
   end
 
-  def imprimir_miss
+  def imprimir_miss(intento, indice)
     if intento[indice].to_i == 0
       print "- "
     end
